@@ -6,5 +6,5 @@ services:
       context: .  # 指定构建上下文为当前目录
       dockerfile: Dockerfile  # 指定Dockerfile文件
     volumes:
-      - ./logs:/var/log  # 将宿主机的logs目录挂载到容器的/var/log目录
+      - .:/app # 将宿主机的当前目录挂载到容器的/app目录
     restart: always  # 设置容器重启策略
