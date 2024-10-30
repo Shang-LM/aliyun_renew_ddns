@@ -1,6 +1,6 @@
-ID = "your id"
-Secret = "your secret"
+ID = "LTAI5t6SQcYYXGo7G8WMupw7"
+Secret = "NKTzSNhmOavFNMoUcDRf9S3lFb2QFZ"
 RegionId = "cn-hangzhou"  # 根据实际区域替换
-DomainNameList = ['list of domain name']
-HostNameList = ['list of host name']
+DomainNameList = ["shanglm.vip"]
+HostNameList = ['test']
 Types = "A"
