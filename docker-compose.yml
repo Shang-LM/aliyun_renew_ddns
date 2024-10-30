@@ -1,7 +1,7 @@
-version: '3.8'  # 指定docker-compose的版本
+version: '3'  # 指定docker-compose的版本
 
 services:
-  python-app:  # 服务名称
+  modify_public_ip:  # 服务名称
     build:
       context: .  # 指定构建上下文为当前目录
       dockerfile: Dockerfile  # 指定Dockerfile文件
