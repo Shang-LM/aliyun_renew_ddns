@@ -1,0 +1,10 @@
+version: '3.8'  # 指定docker-compose的版本
+
+services:
+  python-app:  # 服务名称
+    build:
+      context: .  # 指定构建上下文为当前目录
+      dockerfile: Dockerfile  # 指定Dockerfile文件
+    volumes:
+      - ./logs:/var/log  # 将宿主机的logs目录挂载到容器的/var/log目录
+    restart: always  # 设置容器重启策略

@@ -1,7 +1,7 @@
 # from aliyunsdkcore.client import AcsClient
 from aliyunsdkcore import client
 from aliyunsdkalidns.request.v20150109 import UpdateDomainRecordRequest, DescribeDomainsRequest, DescribeDomainRecordsRequest
-import json, urllib.request, re
+import json
 import requests
 import time
 import config
