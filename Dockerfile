@@ -3,7 +3,7 @@ LABEL authors="shang"
 
 WORKDIR /app
 
-COPY . .
+COPY . /app
 
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
@@ -17,4 +17,4 @@ RUN crontab /etc/cron.d/my-cron
 
 RUN touch /var/log/cron.log
 
-CMD ["cron", "-f"]
+CMD cron -f
