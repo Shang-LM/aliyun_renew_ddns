@@ -19,12 +19,14 @@ clt = client.AcsClient(ID, Secret, RegionId)
 
 # 获取当前公网IP
 def GetLocalIP():
+    print("正在获取公网 IP...")
     # 这里可以根据实际情况调用第三方服务获取公网IP，例如使用requests库访问ipify等服务
     try:
         # 使用公共API获取公网IP
         response = requests.get("https://openapi.lddgo.net/base/gtool/api/v1/GetIp")
         response.raise_for_status()  # 检查请求是否成功
         ip_data = response.json().get("data")
+        print(f"获取到的公网 IP ：{ip_data.get('ip')}")
         return ip_data.get("ip")
     except requests.RequestException as e:
         print("无法获取公网 IP:", e)
@@ -68,8 +70,7 @@ def GetAllDomainRecords(DomainNameList, Types, IP):
                 continue
 
 
-
-IP = GetLocalIP()
-
-GetAllDomainRecords(DomainNameList, Types, IP)
-# print(IP)
+if __name__ == "__main__":
+    IP = GetLocalIP()
+    GetAllDomainRecords(DomainNameList, Types, IP)
+    print(IP)
