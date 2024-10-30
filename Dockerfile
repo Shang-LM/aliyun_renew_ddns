@@ -1,5 +1,7 @@
 FROM registry.cn-beijing.aliyuncs.com/docker_images_shang/python:3.10-slim
 
+ENV PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
 COPY . .
