@@ -71,5 +71,5 @@ def GetAllDomainRecords(DomainNameList, Types, IP):
 
 IP = GetLocalIP()
 
-# GetAllDomainRecords(DomainNameList, Types, IP)
-print(IP)
+GetAllDomainRecords(DomainNameList, Types, IP)
+# print(IP)
