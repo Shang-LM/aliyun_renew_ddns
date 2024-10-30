@@ -1,57 +1,74 @@
-from aliyunsdkcore.client import AcsClient
-from aliyunsdkecs.request.v20140526 import DescribeInstancesRequest
-from aliyunsdkalidns.request.v20150109 import UpdateDomainRecordRequest
-import json
+# from aliyunsdkcore.client import AcsClient
+from aliyunsdkcore import client
+from aliyunsdkalidns.request.v20150109 import UpdateDomainRecordRequest, DescribeDomainsRequest, DescribeDomainRecordsRequest
+import json, urllib.request, re
+import requests
+import time
+import config
 
 # 初始化客户端
-client = AcsClient(
-    "<your-access-key-id>",
-    "<your-access-key-secret>",
-    "cn-hangzhou"  # 根据实际区域替换
-)
+
+ID = config.ID
+Secret = config.Secret
+RegionId = "cn-hangzhou"  # 根据实际区域替换
+DomainNameList =config.DomainNameList
+HostNameList = config.HostNameList
+Types = "A"
+
+clt = client.AcsClient(ID, Secret, RegionId)
 
 # 获取当前公网IP
-def get_current_public_ip():
+def GetLocalIP():
     # 这里可以根据实际情况调用第三方服务获取公网IP，例如使用requests库访问ipify等服务
-    pass
+    try:
+        # 使用公共API获取公网IP
+        response = requests.get("https://openapi.lddgo.net/base/gtool/api/v1/GetIp")
+        response.raise_for_status()  # 检查请求是否成功
+        ip_data = response.json().get("data")
+        return ip_data.get("ip")
+    except requests.RequestException as e:
+        print("无法获取公网 IP:", e)
+        return None
+    
+def EditDomainRecord(HostName, RecordId, Types, IP):
+    UpdateDomainRecord = UpdateDomainRecordRequest.UpdateDomainRecordRequest()
+    UpdateDomainRecord.set_accept_format('json')
+    UpdateDomainRecord.set_RecordId(RecordId)
+    UpdateDomainRecord.set_RR(HostName)
+    UpdateDomainRecord.set_Type(Types)
+    UpdateDomainRecord.set_TTL('600')
+    UpdateDomainRecord.set_Value(IP)
+    UpdateDomainRecordJson = json.loads(clt.do_action_with_exception(UpdateDomainRecord))
+    print(UpdateDomainRecordJson)
 
-# 查询ECS实例公网IP
-def get_eip_from_ecs(instance_id):
-    request = DescribeInstancesRequest.DescribeInstancesRequest()
-    request.set_accept_format('json')
-    request.set_InstanceIds(json.dumps([instance_id]))
-    
-    response = client.do_action_with_exception(request)
-    response_dict = json.loads(response)
-    # 根据响应提取公网IP，这里仅为示例逻辑，实际需根据响应结构调整
-    eip = response_dict['Instances']['Instance'][0]['PublicIpAddress']['IpAddress'][0]
-    return eip
+# 记录IP到文件
+def RecordIPToFile(IP):
+    with open('old_ip.txt', 'a') as file:
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        file.write(f"{timestamp}: {IP}\n")
 
-# 更新域名解析记录
-def update_dns_record(record_id, new_ip):
-    request = UpdateDomainRecordRequest.UpdateDomainRecordRequest()
-    request.set_accept_format('json')
-    request.set_RecordId(record_id)
-    request.set_Value(new_ip)  # 新的公网IP
-    
-    # 根据实际情况设置RR和Type，这里假设已知
-    request.set_RR("<your-host-record>")
-    request.set_Type("<record-type>")  # 例如"A"
-    
-    response = client.do_action_with_exception(request)
-    print("DNS Record updated:", response)
+# 获取域名信息
+def GetAllDomainRecords(DomainNameList, Types, IP):
+    for DomainName in DomainNameList:
+        DomainRecords = DescribeDomainRecordsRequest.DescribeDomainRecordsRequest()
+        DomainRecords.set_accept_format('json')
+        DomainRecords.set_DomainName(DomainName)
+        DomainRecords.set_Type(Types)
 
-# 主程序逻辑
-def main():
-    # 假设公网IP已通过某种方式获取，这里直接调用获取函数示例
-    current_ip = get_current_public_ip()  # 实现获取公网IP的逻辑
-    print("Current Public IP:", current_ip)
-    
-    # 假定已知需要更新的域名解析记录ID
-    record_id = "<your-record-id>"
-    
-    # 检查并更新记录值
-    update_dns_record(record_id, current_ip)
+        DomainRecordsResponse = json.loads(clt.do_action_with_exception(DomainRecords))
+        for record in DomainRecordsResponse['DomainRecords']['Record']:
+            HostName = record['RR']
+            RecordId = record['RecordId']
+            RecordIP = record['Value']
+            if HostName in HostNameList:
+                if RecordIP != IP:
+                    EditDomainRecord(HostName, RecordId, Types, IP)
+                    RecordIPToFile(RecordIP)  # 记录旧 IP
+            else:
+                continue
 
-if __name__ == "__main__":
-    main()
+
+
+IP = GetLocalIP()
+
+GetAllDomainRecords(DomainNameList, Types, IP)
