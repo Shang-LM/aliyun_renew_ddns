@@ -1,0 +1,2 @@
+# aliyun_renew_ddns
+自动更新阿里云域名解析的公网ip地址
