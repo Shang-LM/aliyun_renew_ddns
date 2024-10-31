@@ -71,6 +71,12 @@ def GetAllDomainRecords(DomainNameList, Types, IP):
 
 
 if __name__ == "__main__":
-    IP = GetLocalIP()
-    GetAllDomainRecords(DomainNameList, Types, IP)
-    print(IP,flush=True)
+    while True:
+        try:
+            IP = GetLocalIP()
+            GetAllDomainRecords(DomainNameList, Types, IP)
+        except Exception as e:
+            print(f"发生错误: {e}", flush=True)
+        time.sleep(300)
+        print(IP,flush=True)
+        
